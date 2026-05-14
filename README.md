@@ -13,6 +13,11 @@ Wayne 的終端設定檔備份。
 | `tmux/.tmux.conf.local` | `~/.tmux.conf.local` |
 | `git/.gitconfig` | `~/.gitconfig` |
 | `git/ignore` | `~/.config/git/ignore` |
+| `ghostty/config` | `~/.config/ghostty/config` |
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `claude/settings.json` | `~/.claude/settings.json`（合併，勿直接覆蓋） |
+| `claude/commands/` | `~/.claude/commands/` |
+| `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |
 
 ## 新電腦設定步驟
 
@@ -38,13 +43,16 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 # oh-my-tmux
 git clone https://github.com/gpakosz/.tmux.git ~/.tmux
 ln -s ~/.tmux/.tmux.conf ~/.tmux.conf
+
+# Ghostty（從官網下載 .dmg 安裝）
+# https://ghostty.org
 ```
 
 ### 2. 複製設定檔
 
 ```bash
 git clone https://github.com/wayneho219/dotfiles.git ~/dotfiles
-mkdir -p ~/.config/git
+mkdir -p ~/.config/git ~/.config/ghostty ~/.claude/commands
 
 cp ~/dotfiles/zsh/.zshrc ~/.zshrc
 cp ~/dotfiles/zsh/.zprofile ~/.zprofile
@@ -53,9 +61,35 @@ cp ~/dotfiles/zsh/.p10k.zsh ~/.p10k.zsh
 cp ~/dotfiles/tmux/.tmux.conf.local ~/.tmux.conf.local
 cp ~/dotfiles/git/.gitconfig ~/.gitconfig
 cp ~/dotfiles/git/ignore ~/.config/git/ignore
+cp ~/dotfiles/ghostty/config ~/.config/ghostty/config
+cp ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
+cp ~/dotfiles/claude/commands/* ~/.claude/commands/
 ```
 
-### 3. 設定 SSH
+### 3. 設定 Claude Code
+
+```bash
+# 安裝 Claude Code
+npm install -g @anthropic-ai/claude-code
+
+# 安裝 plugins（公開 marketplace）
+claude plugins install superpowers
+claude plugins install skill-creator
+claude plugins install frontend-design
+
+# 安裝 claude-hud（自訂 marketplace）
+# 先在 Claude Code 裡執行 /update-config 加入 claude-hud marketplace，再安裝
+
+# 安裝 user-skills（本機目錄 plugin）
+# 把 claude/skills/ 複製到目標路徑後，在 Claude Code 設定中指向該目錄
+mkdir -p ~/.claude/plugins/cache/user-skills/user-skills/1.0.0
+cp -r ~/dotfiles/claude/skills ~/.claude/plugins/cache/user-skills/user-skills/1.0.0/
+
+# settings.json：手動將 enabledPlugins / extraKnownMarketplaces / statusLine 合併進去
+# 不要直接覆蓋，會清掉 Claude Code 自動管理的欄位
+```
+
+### 4. 設定 SSH
 
 自行建立 `~/.ssh/config`（不放在此 repo）。
 

@@ -1,5 +1,6 @@
 font-family = MesloLGS Nerd Font
 font-size = 12
+font-style = Bold
 theme = TokyoNight
 
 window-padding-x = 4

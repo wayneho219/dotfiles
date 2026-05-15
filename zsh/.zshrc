@@ -119,7 +119,7 @@ source <(fzf --zsh)
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'cat {}'"
 export FZF_CTRL_T_OPTS="--preview 'cat {}'"
 export FZF_ALT_C_OPTS="--preview 'ls {}'"
-alias labvpn='cd ~/Downloads/REDACTED && sudo /opt/homebrew/opt/openvpn/sbin/openvpn --config REDACTED.ovpn'
+alias labvpn='cd ~/vpn && sudo /opt/homebrew/opt/openvpn/sbin/openvpn --config lab.ovpn'
 alias lg='lazygit'
 
 # eza（現代版 ls）

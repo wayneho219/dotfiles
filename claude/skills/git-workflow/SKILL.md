@@ -28,3 +28,12 @@ No "🤖 Generated with Claude Code" in PR body.
 ## .gitignore
 
 Before the first commit in a new project, suggest a `.gitignore` and wait for confirmation.
+
+## Security
+
+Before every commit or push, scan all staged content for sensitive information:
+- Passwords, tokens, API keys, secrets
+- Internal IP addresses, server hostnames
+- Personal accounts, student IDs, emails
+
+If found, stop immediately and warn the user. Do not proceed until confirmed.

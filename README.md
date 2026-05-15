@@ -60,6 +60,7 @@ cp ~/dotfiles/zsh/.bashrc ~/.bashrc
 cp ~/dotfiles/zsh/.p10k.zsh ~/.p10k.zsh
 cp ~/dotfiles/tmux/.tmux.conf.local ~/.tmux.conf.local
 cp ~/dotfiles/git/.gitconfig ~/.gitconfig
+git config --global user.email "your@email.com"  # 填入自己的 email（repo 內不存放）
 cp ~/dotfiles/git/ignore ~/.config/git/ignore
 cp ~/dotfiles/ghostty/config ~/.config/ghostty/config
 cp ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
@@ -89,7 +90,16 @@ cp -r ~/dotfiles/claude/skills ~/.claude/plugins/cache/user-skills/user-skills/1
 # 不要直接覆蓋，會清掉 Claude Code 自動管理的欄位
 ```
 
-### 4. 設定 SSH
+### 4. 設定 VPN alias
+
+`labvpn` alias 預設路徑為 `~/vpn/lab.ovpn`，將 VPN 設定檔 symlink 過去：
+
+```bash
+mkdir -p ~/vpn
+ln -s /path/to/your.ovpn ~/vpn/lab.ovpn
+```
+
+### 5. 設定 SSH
 
 自行建立 `~/.ssh/config`（不放在此 repo）。
 

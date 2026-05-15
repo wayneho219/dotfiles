@@ -6,3 +6,5 @@ window-padding-x = 4
 window-padding-y = 4
 
 macos-option-as-alt = true
+cursor-style = bar
+copy-on-select = true

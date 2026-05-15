@@ -138,3 +138,7 @@ printf '\e[6 q'
 
 # Increase file descriptor limit for Claude CLI and other dev tools
 ulimit -n 10240
+
+bindkey "^[[1;3C" forward-word   # Option + →
+bindkey "^[[1;3D" backward-word  # Option + ←
+

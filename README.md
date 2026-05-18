@@ -18,6 +18,7 @@ Wayne 的終端設定檔備份。
 | `claude/settings.json` | `~/.claude/settings.json`（合併，勿直接覆蓋） |
 | `claude/commands/` | `~/.claude/commands/` |
 | `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |
+| `claude/plugins/claude-hud/config.json` | `~/.claude/plugins/claude-hud/config.json` |
 
 ## 新電腦設定步驟
 
@@ -65,6 +66,8 @@ cp ~/dotfiles/git/ignore ~/.config/git/ignore
 cp ~/dotfiles/ghostty/config ~/.config/ghostty/config
 cp ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp ~/dotfiles/claude/commands/* ~/.claude/commands/
+mkdir -p ~/.claude/plugins/claude-hud
+cp ~/dotfiles/claude/plugins/claude-hud/config.json ~/.claude/plugins/claude-hud/config.json
 ```
 
 ### 3. 設定 Claude Code

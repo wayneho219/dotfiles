@@ -19,6 +19,7 @@ Wayne 的終端設定檔備份。
 | `claude/commands/` | `~/.claude/commands/` |
 | `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |
 | `claude/plugins/claude-hud/config.json` | `~/.claude/plugins/claude-hud/config.json` |
+| `claude/TROUBLESHOOTING.md` | 參考文件，無需複製 |
 
 ## 新電腦設定步驟
 

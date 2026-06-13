@@ -271,7 +271,7 @@ tmux_conf_theme_right_separator_sub='\uE0B3'  #   PowerlineSymbols.otf font, see
 #     - #{username_ssh}
 tmux_conf_theme_status_left="   #S "
 
-tmux_conf_theme_status_right=" CPU #{cpu_percentage} RAM #{ram_percentage} ↓#{download_speed} ↑#{upload_speed} | #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
+tmux_conf_theme_status_right=" CPU #{cpu_percentage} RAM #{ram_percentage} | #{pairing}#{synchronized}#{?battery_bar,#{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b #{?client_prefix,#[fg=#5f00af bg=#24283b],#[fg=#7aa2f7 bg=#24283b]}#{?client_prefix,#[fg=white bg=#5f00af],#[fg=#1a1b26 bg=#7aa2f7]} #{hostname} "
 
 # status left style
 tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_1"
@@ -452,7 +452,6 @@ tmux_conf_uninstall_plugins_on_reload=true
 # visit https://github.com/tmux-plugins for available plugins
 #set -g @plugin 'tmux-plugins/tmux-copycat'
 set -g @plugin 'tmux-plugins/tmux-cpu'
-set -g @plugin 'tmux-plugins/tmux-net-speed'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @continuum-restore 'on'
@@ -467,6 +466,23 @@ set -g @continuum-restore 'on'
 #
 # then, use #{foo} in e.g. the 'tmux_conf_theme_status_left' or the
 # 'tmux_conf_theme_status_right' variables.
+
+# -- Claude Code dev layout ----------------------------------------------------
+
+# <prefix> + g : lazygit floating popup (90% screen)
+bind g display-popup -E -w 90% -h 90% "lazygit"
+
+# <prefix> + D : dev layout
+#   ┌──────────────────────┐
+#   │     Claude Code      │  70%
+#   ├──────────┬───────────┤
+#   │ lazygit  │   shell   │  30%
+#   └──────────┴───────────┘
+bind D \
+  split-window -v -p 30 \; \
+  split-window -h \; \
+  send-keys "lazygit" Enter \; \
+  select-pane -U
 
 # ------------------------------------------------------------------------------
 

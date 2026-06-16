@@ -20,9 +20,22 @@
     "user-skills": {
       "source": {
         "source": "directory",
-        "path": "/Users/wayneho/.claude/plugins/cache/user-skills/user-skills/1.0.0"
+        "path": "$HOME/.claude/plugins/cache/user-skills/user-skills/1.0.0"
       }
     }
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ]
+  }
 }

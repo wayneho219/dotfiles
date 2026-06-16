@@ -30,7 +30,14 @@ Wayne 的終端設定檔備份。
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # 工具
-brew install fzf eza tmux lazygit sshpass
+brew install fzf eza tmux lazygit sshpass node
+
+# RTK（Token-optimized CLI proxy for Claude Code）
+brew install rtk
+
+# Nerd Font（Powerlevel10k 和 eza 圖示必要）
+brew install --cask font-jetbrains-mono-nerd-font
+# 安裝後到 Ghostty 設定中指定字型：font-family = "JetBrainsMono Nerd Font"
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"

@@ -1,34 +1,26 @@
 {
   "permissions": {
     "allow": [
-      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT stock_code, stock_name, market, industry_code, industry_name FROM tw_stock_list LIMIT 10;\")",
-      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT market, COUNT\\(*\\) FROM tw_stock_list GROUP BY market;\")",
-      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT industry_code, industry_name, COUNT\\(*\\) as cnt FROM tw_stock_list GROUP BY industry_code ORDER BY cnt DESC LIMIT 10;\")",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(gh pr create --base main --head wayne-dev --title 'feat: add tw_stock_list with industry classification' --body ':*)",
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
       "Bash(git merge:*)",
-      "Bash(.venv/bin/python scripts/tw_stock_quote_sync.py)",
-      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT stock_code, stock_name, industry_name, close_price, change_val, change_pct, volume, quote_date FROM tw_stock_list WHERE close_price IS NOT NULL LIMIT 10;\")",
       "Bash(git commit -m ':*)",
       "Bash(git reset:*)",
       "Bash(git commit:*)",
       "Bash(git rm:*)",
       "Bash(git branch:*)",
       "Bash(git fetch *)",
+      "Bash(git -C * log *)",
+      "Bash(git -C * diff *)",
+      "Bash(git -C * status)",
       "Read(//Users/wayneho/.claude/**)",
       "Bash(claude plugins *)",
       "Bash(claude plugin *)",
       "Bash(python3 -m json.tool)",
-      "Bash(python3 -c \" import json,sys data = json.load\\(sys.stdin\\) plugins = data.get\\('plugins', []\\) for p in plugins: name = p.get\\('name',''\\) desc = p.get\\('description',''\\) print\\(f'{name}: {desc[:80]}'\\) \")",
-      "Bash(python3 -c \" import json,sys data = json.load\\(sys.stdin\\) plugins = data.get\\('plugins', []\\) for p in plugins: name = p.get\\('name',''\\) desc = p.get\\('description',''\\) if any\\(k in name.lower\\(\\) or k in desc.lower\\(\\) for k in ['schedule','claude-api','anthropic','ralph']\\): print\\(f'{name}: {desc[:100]}'\\) \")",
       "WebFetch(domain:www.notion.so)",
-      "WebFetch(domain:fork-pond-044.notion.site)",
-      "Bash(git -C * log *)",
-      "Bash(git -C * diff *)",
-      "Bash(git -C * status)"
+      "WebFetch(domain:fork-pond-044.notion.site)"
     ]
   },
   "hooks": {

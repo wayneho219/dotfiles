@@ -1,30 +1,36 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"/opt/homebrew/bin/node\" \"${plugin_dir}dist/index.js\"'"
+  "permissions": {
+    "allow": [
+      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT stock_code, stock_name, market, industry_code, industry_name FROM tw_stock_list LIMIT 10;\")",
+      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT market, COUNT\\(*\\) FROM tw_stock_list GROUP BY market;\")",
+      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT industry_code, industry_name, COUNT\\(*\\) as cnt FROM tw_stock_list GROUP BY industry_code ORDER BY cnt DESC LIMIT 10;\")",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --base main --head wayne-dev --title 'feat: add tw_stock_list with industry classification' --body ':*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(.venv/bin/python scripts/tw_stock_quote_sync.py)",
+      "Bash(sqlite3 data/tw_stock_list.sqlite3 \"SELECT stock_code, stock_name, industry_name, close_price, change_val, change_pct, volume, quote_date FROM tw_stock_list WHERE close_price IS NOT NULL LIMIT 10;\")",
+      "Bash(git commit -m ':*)",
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch *)",
+      "Read(//Users/wayneho/.claude/**)",
+      "Bash(claude plugins *)",
+      "Bash(claude plugin *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c \" import json,sys data = json.load\\(sys.stdin\\) plugins = data.get\\('plugins', []\\) for p in plugins: name = p.get\\('name',''\\) desc = p.get\\('description',''\\) print\\(f'{name}: {desc[:80]}'\\) \")",
+      "Bash(python3 -c \" import json,sys data = json.load\\(sys.stdin\\) plugins = data.get\\('plugins', []\\) for p in plugins: name = p.get\\('name',''\\) desc = p.get\\('description',''\\) if any\\(k in name.lower\\(\\) or k in desc.lower\\(\\) for k in ['schedule','claude-api','anthropic','ralph']\\): print\\(f'{name}: {desc[:100]}'\\) \")",
+      "WebFetch(domain:www.notion.so)",
+      "WebFetch(domain:fork-pond-044.notion.site)",
+      "Bash(git -C * log *)",
+      "Bash(git -C * diff *)",
+      "Bash(git -C * status)"
+    ]
   },
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "claude-hud@claude-hud": true,
-    "user-skills@user-skills": true,
-    "frontend-design@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-hud": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
-      }
-    },
-    "user-skills": {
-      "source": {
-        "source": "directory",
-        "path": "$HOME/.claude/plugins/cache/user-skills/user-skills/1.0.0"
-      }
-    }
-  },
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "PreToolUse": [
       {
@@ -37,5 +43,42 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"'  | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"/opt/homebrew/bin/node\" \"${plugin_dir}dist/index.js\"'"
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
+    "user-skills@user-skills": true,
+    "frontend-design@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
+    },
+    "user-skills": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/wayneho/.claude/plugins/cache/user-skills/user-skills/1.0.0"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "tui": "fullscreen"
 }

@@ -33,7 +33,10 @@ Wayne 的終端設定檔備份。
 brew install fzf eza tmux lazygit sshpass node
 
 # RTK（Token-optimized CLI proxy for Claude Code）
-brew install rtk
+brew install rtk                          # macOS
+# Linux：
+# curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 
 # Nerd Font（Powerlevel10k 和 eza 圖示必要）
 brew install --cask font-jetbrains-mono-nerd-font
@@ -88,8 +91,14 @@ npm install -g @anthropic-ai/claude-code
 claude plugins install superpowers
 claude plugins install skill-creator
 claude plugins install frontend-design
+claude plugins install pyright-lsp
+claude plugins install claude-md-management
+claude plugins install clangd-lsp
 
-# 安裝 claude-hud（自訂 marketplace）
+# 安裝 ponytail（自訂 marketplace，GitHub: DietrichGebert/ponytail）
+# 先在 Claude Code 裡執行 /update-config 加入 ponytail marketplace，再安裝
+
+# 安裝 claude-hud（自訂 marketplace，GitHub: jarrodwatts/claude-hud）
 # 先在 Claude Code 裡執行 /update-config 加入 claude-hud marketplace，再安裝
 
 # 安裝 user-skills（本機目錄 plugin）
@@ -97,8 +106,9 @@ claude plugins install frontend-design
 mkdir -p ~/.claude/plugins/cache/user-skills/user-skills/1.0.0
 cp -r ~/dotfiles/claude/skills ~/.claude/plugins/cache/user-skills/user-skills/1.0.0/
 
-# settings.json：手動將 enabledPlugins / extraKnownMarketplaces / statusLine 合併進去
+# settings.json：手動將 enabledPlugins / extraKnownMarketplaces / statusLine / hooks 合併進去
 # 不要直接覆蓋，會清掉 Claude Code 自動管理的欄位
+# hooks 欄位包含 RTK PreToolUse hook，合併時一併帶入
 ```
 
 ### 4. 設定 SSH

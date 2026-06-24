@@ -15,7 +15,7 @@
       "Bash(git -C * log *)",
       "Bash(git -C * diff *)",
       "Bash(git -C * status)",
-      "Read(//Users/wayneho/.claude/**)",
+      "Read(~/.claude/**)",
       "Bash(claude plugins *)",
       "Bash(claude plugin *)",
       "Bash(python3 -m json.tool)",
@@ -61,7 +61,7 @@
     "user-skills": {
       "source": {
         "source": "directory",
-        "path": "/Users/wayneho/.claude/plugins/cache/user-skills/user-skills/1.0.0"
+        "path": "$HOME/.claude/plugins/cache/user-skills/user-skills/1.0.0"
       }
     },
     "ponytail": {

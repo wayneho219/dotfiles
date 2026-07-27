@@ -13,4 +13,7 @@
 ## Language
 - 與使用者溝通、撰寫計畫文件，一律用繁體中文。
 
+## Boundaries
+- 密鑰只能放環境變數或 `.env`，不要 inline 寫進程式碼或設定檔。
+
 @RTK.md

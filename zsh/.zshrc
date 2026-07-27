@@ -141,6 +141,9 @@ ulimit -n 10240
 bindkey "^[[1;3C" forward-word   # Option + →
 bindkey "^[[1;3D" backward-word  # Option + ←
 
+# RTK (Token-optimized CLI proxy for Claude Code)
+export PATH="$HOME/.local/bin:$PATH"
+
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"

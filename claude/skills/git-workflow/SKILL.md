@@ -12,8 +12,10 @@ No co-author trailer.
 
 ## Branches
 
-Default branch is `Wayne-Dev` — never delete it.
-Feature/Bugfix branches should be named as `<type>/<description>`.
+`Wayne-Dev` is the primary development branch — never delete it.
+`main` is the protected integration branch on GitHub (default branch).
+Feature/Bugfix branches should be named `<type>/<description>` and branched off `Wayne-Dev`.
+Merge order: feature → `Wayne-Dev` → PR to `main`.
 
 ## Timing
 

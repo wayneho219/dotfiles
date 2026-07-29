@@ -16,6 +16,7 @@
     "showDuration": true,
     "showSessionName": true,
     "showSessionTokens": true,
+    "sevenDayThreshold": 0,
     "customLine": ""
   },
   "gitStatus": {

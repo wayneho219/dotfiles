@@ -18,6 +18,7 @@ Wayne 的終端設定檔備份。
 | `claude/settings.json` | `~/.claude/settings.json`（合併，勿直接覆蓋） |
 | `claude/commands/` | `~/.claude/commands/` |
 | `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |
+| `claude/skills-personal/` | `~/.claude/skills/`（獨立個人 skill，非 user-skills plugin 的一部分；`-workspace` 結尾的 eval 暫存資料夾不追蹤；本身是獨立 git repo 的 skill（如 latex-document）也不追蹤，改用 clone） |
 | `claude/plugins/claude-hud/config.json` | `~/.claude/plugins/claude-hud/config.json` |
 | `claude/TROUBLESHOOTING.md` | 參考文件，無需複製 |
 
@@ -105,6 +106,12 @@ claude plugins install clangd-lsp
 # 把 claude/skills/ 複製到目標路徑後，在 Claude Code 設定中指向該目錄
 mkdir -p ~/.claude/plugins/cache/user-skills/user-skills/1.0.0
 cp -r ~/dotfiles/claude/skills ~/.claude/plugins/cache/user-skills/user-skills/1.0.0/
+
+# 個人獨立 skill（非 plugin，直接放 ~/.claude/skills/）
+mkdir -p ~/.claude/skills
+cp -r ~/dotfiles/claude/skills-personal/* ~/.claude/skills/
+# latex-document 是獨立 git repo 裝的 skill，不放在 dotfiles，另外 clone：
+# git clone https://github.com/ndpvt-web/latex-document-skill ~/.claude/skills/latex-document
 
 # settings.json：手動將 enabledPlugins / extraKnownMarketplaces / statusLine / hooks 合併進去
 # 不要直接覆蓋，會清掉 Claude Code 自動管理的欄位

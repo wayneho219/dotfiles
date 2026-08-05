@@ -1,0 +1,23 @@
+{
+  "skill_name": "paper-review",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "幫我整理一下這篇論文在講什麼 https://arxiv.org/abs/2406.13352",
+      "expected_output": "快速版模式：只讀摘要/方法/結果，套用 note-taking skill 的 paper-review 範本（背景脈絡、核心貢獻、具體例子、侷限性、在本研究中的用途），output: reference，不做批判分析或碩論對照，存到 ~/paper-review/ 底下一個 md 檔",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "幫我深讀這篇論文，看看跟我碩論方向有什麼關係 https://arxiv.org/abs/2302.12173",
+      "expected_output": "深讀版模式：讀全文，除了背景/核心貢獻/侷限性外，多寫「可攻擊點/延伸方向」和自動對照 project_llm_redteam_thesis.md 內容的「與研究的關聯」，具體點出跟現有四種機制/盲區的關係，output: paper",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "這幾篇跟我碩論做的 agent 安全有沒有關係，幫我整理一下 https://arxiv.org/abs/2406.13352 https://arxiv.org/abs/2410.09024",
+      "expected_output": "多篇論文批次處理：因提到「碩論」自動判定為深讀版，兩篇各自獨立存成一個檔案（各自都有可攻擊點+與研究關聯對照），最後給一個簡短總表（篇名+一句話重點），不要擠進同一份筆記",
+      "files": []
+    }
+  ]
+}

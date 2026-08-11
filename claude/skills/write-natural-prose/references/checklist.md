@@ -53,6 +53,36 @@
 | 這是個好問題 | （刪掉，直接回答） |
 | 相信你會發現... | （刪掉） |
 
+### 詞彙氾濫（單字層級）
+公文/新聞稿語料訓練出來的高頻詞，出現一次沒問題，整篇重複出現才是病症。
+| 不要 | 替代 |
+|---|---|
+| 賦能 | 讓...能夠 XX（講清楚實際做了什麼） |
+| 抓手 | 具體做法、工具（直接講是什麼） |
+| 閉環 | 完整流程（或直接刪，講結果） |
+| 深耕 | 專注投入 XX（幾年、哪個領域，給具體範圍） |
+| 打造 | 建立、做出（依語境挑一個具體動詞） |
+| 蓬勃發展 | 快速成長（給具體數字或時間範圍） |
+| 全面、高效、強大（同段重複堆疊） | 挑一個真正符合語境的形容詞，或直接換成數字 |
+
+### 抽象名詞堆砌
+| 不要 | 替代 |
+|---|---|
+| 自我的探索、認同感的建構、內在小孩的療癒 | 換成具體事件、對話、行動——誰、做了什麼、結果如何 |
+
+### 模糊歸因
+| 不要 | 替代 |
+|---|---|
+| 有人認為、研究顯示（不具名不附來源） | 講清楚是誰、哪份研究，找不到來源就直接刪掉這句 |
+
+### 格式濫用
+不是用詞問題，是排版留下的痕跡。
+| 不要 | 替代 |
+|---|---|
+| 正式文件裡殘留 Markdown 語法（##、**）沒轉換 | 轉成該格式該有的標題/粗體樣式，不留原始符號 |
+| 每個標題都套用英文式 Title Case | 依文件語言與場合的慣例大小寫 |
+| 正式文件裡加 emoji | 刪掉，除非文件性質本來就輕鬆（如內部聊天記錄） |
+
 ## English
 
 ### Filler Transitions
@@ -98,3 +128,26 @@
 |---|---|
 | Great question! | (cut, answer directly) |
 | Absolutely, here's... | (cut) |
+
+### Overused Single Words
+Frequency of these words spiked sharply post-ChatGPT (e.g. "delve" usage up 654% in biomedical abstracts, 2020-2023, per Max Planck Institute research). One use is fine — the tell is repetition across a document.
+| Avoid | Replace with |
+|---|---|
+| delve, boast, underscore, foster, harness, leverage, navigate | dig into, has, show, build, use, deal with — a plain verb |
+| robust, pivotal, comprehensive, intricate, nuanced, vibrant | pick the one specific quality that's actually true here |
+| tapestry, landscape, realm, journey (as metaphor) | name the actual thing instead of the metaphor |
+| testament to | proof of, shows |
+
+### False Range / Vague Attribution
+| Avoid | Replace with |
+|---|---|
+| From [extreme A] to [extreme B] spanning an implausibly wide, loosely-connected set | Name the actual two things being compared, only if the span is real |
+| Critics argue / Some believe (no named source) | Name the source, or cut the claim |
+
+### Formatting Tells
+Not a wording problem — leftover artifacts from generation.
+| Avoid | Replace with |
+|---|---|
+| Leftover Markdown syntax (##, **) in prose meant to render as plain text | Convert to actual formatting, or plain text |
+| Title Case on every heading regardless of house style | Follow the target document's convention |
+| Emoji in formal documents | Cut, unless the register genuinely calls for it |

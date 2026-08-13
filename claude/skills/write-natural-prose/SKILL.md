@@ -13,6 +13,7 @@ Produce clear, natural prose whose voice, structure, and level of formality fit 
 - Adapt vocabulary, tone, pacing, structure, and degree of formality to the document type, audience, purpose, and language variety.
 - Retain concrete context: names, dates, examples, mechanisms, constraints, stakes, and causal links that are supported by the source material.
 - Prefer specific verbs and claims over generic praise, filler, and vague abstractions.
+- A rewrite that grows noticeably longer than its source is usually adding unstated content, not removing filler. Treat significant length inflation as a signal to re-check for invented elaboration, not as evidence of thoroughness.
 - Vary sentence length and paragraph rhythm when it improves readability. Allow natural asymmetry, but keep grammar and logic correct.
 - Build paragraphs around the needs of the argument, not a repeated template. Let paragraph length vary with content.
 - Use transitions only when the relationship between ideas needs signaling. Prefer explicit logical connections over stock phrases.
@@ -25,7 +26,7 @@ Produce clear, natural prose whose voice, structure, and level of formality fit 
 2. Extract non-negotiable facts, quotations, citations, terminology, claims, and formatting constraints. Mark missing information instead of filling it with invention.
 3. Choose a fitting register and structure. Determine which ideas deserve emphasis, which can be compressed, and which need concrete support.
 4. Draft or revise at the level of meaning first. Remove generic openings, canned transitions, repetitive framing, and conclusions that merely restate prior sentences. Cross-check against `references/checklist.md` for concrete phrase-level tells (Chinese and English) — hit phrases get replaced locally, not rewritten wholesale.
-5. Edit for voice and rhythm. Vary syntax naturally, replace abstract filler with supported specifics, and break unnecessary symmetry without forcing quirks.
+5. Edit for voice and rhythm. Vary syntax naturally, replace abstract filler with supported specifics, and break unnecessary symmetry without forcing quirks. Don't apply the same fix to every paragraph — one trick used uniformly across a whole document becomes its own repetitive tell.
 6. Verify fidelity. Check every name, number, date, quotation, citation, and source-dependent claim against provided or verified material.
 7. Run the final checklist. If essential context is unavailable, state the gap or use a clearly labeled placeholder.
 

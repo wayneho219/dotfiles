@@ -27,6 +27,9 @@
 | 這不僅是一個工具，更是一種方法論 | 這個工具改變了 XX 的做法（挑一個講清楚） |
 | 這不只是 X，而是 Y | 直接講 Y，不用 X 陪襯 |
 | 透過 A，藉此達成 B | A 帶來 B |
+| 雖然 X 看似...，但實際上 Y | 直接講 Y，先讓步再反轉是同一招的隱藏版 |
+| 乍看之下 X...，但 | 直接講重點，不用先立靶再打 |
+| 大多數人認為 X，但其實 Y | 直接講 Y，除非「大多數人這樣想」本身是有根據的事實 |
 
 ### 空洞舖陳開場/結尾
 | 不要 | 替代 |
@@ -75,6 +78,16 @@
 |---|---|
 | 有人認為、研究顯示（不具名不附來源） | 講清楚是誰、哪份研究，找不到來源就直接刪掉這句 |
 
+### 翻譯腔／公文贅詞
+中文技術與學術文件常見的臃腫結構，本身不誇張也不空洞，但整篇堆疊就顯得生硬。
+| 不要 | 替代 |
+|---|---|
+| 進行了 + N（進行了測試、進行了分析） | 直接用動詞：測試了、分析了 |
+| 通過 + N（通過導入自動化流程） | 用「A 帶來 B」或直接講做了什麼 |
+| 顯著（顯著提升、顯著影響） | 給具體數字或程度，或換成明顯、大幅 |
+| 均、上述、能夠（同段重複出現） | 都、這些／以上、能——換成白話對應詞 |
+| 這說明、從而、以提高 | 說明、（可刪）、用來 |
+
 ### 格式濫用
 不是用詞問題，是排版留下的痕跡。
 | 不要 | 替代 |
@@ -106,6 +119,17 @@
 |---|---|
 | It's not just X, it's Y | Y (drop the X setup) |
 | A robust, scalable, and efficient solution | pick the one property that actually matters here |
+| While X may seem..., it's actually Y | Y (the hedge-then-reframe is the same trick in a softer coat) |
+| At first glance, X... | Cut the setup, state the point |
+| Most people think X, but actually Y | Y — unless "most people think X" is itself a sourced claim |
+
+### Bloated Verbs
+| Avoid | Replace with |
+|---|---|
+| serves as, stands as, marks a, represents a | is |
+| boasts a, features a, offers a | has, gives |
+| plays a role in | affects, causes, shapes — name the actual relationship |
+| aims to, seeks to | wants to, tries to, will (if the outcome is known) |
 
 ### Empty Framing
 | Avoid | Replace with |

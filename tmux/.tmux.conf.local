@@ -83,7 +83,7 @@ tmux_conf_24b_colour=auto
 #   - tmux_conf_theme_mouse
 #   - tmux_conf_theme_root
 #   - tmux_conf_theme_synchronized
-tmux_conf_theme=enabled
+tmux_conf_theme=disabled  # switched to the catppuccin/tmux plugin, see the block near the bottom of this file
 
 # default theme
 tmux_conf_theme_colour_1="#1a1b26"    # tokyo night background
@@ -455,6 +455,8 @@ set -g @plugin 'tmux-plugins/tmux-cpu'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @continuum-restore 'on'
+set -g @plugin 'tmux-plugins/tmux-battery'
+set -g @plugin 'catppuccin/tmux'
 
 
 # -- custom variables ----------------------------------------------------------
@@ -483,6 +485,48 @@ bind D \
   split-window -h \; \
   send-keys "lazygit" Enter \; \
   select-pane -U
+
+# -- Catppuccin status bar ------------------------------------------------------
+# oh-my-tmux's own theme engine is disabled (tmux_conf_theme=disabled above);
+# this plugin now owns status-left/right, window-status-format and colours.
+
+set -g @catppuccin_flavor "mocha"
+set -g @catppuccin_window_status_style "custom"
+# same left/right caps as the built-in "rounded" style, but with a matching
+# rounded cap at the name->number junction too (built-in "rounded" leaves that flat)
+set -g @catppuccin_window_left_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+set -g @catppuccin_window_middle_separator " #[fg=#{@catppuccin_window_number_color},bg=#{@catppuccin_window_text_color}]"
+set -g @catppuccin_window_right_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+set -g @catppuccin_window_current_left_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+set -g @catppuccin_window_current_middle_separator " #[fg=#{@catppuccin_window_current_number_color},bg=#{@catppuccin_window_current_text_color}]"
+set -g @catppuccin_window_current_right_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+set -g @catppuccin_window_number_position "right"
+set -g @catppuccin_window_text " #W"
+set -g @catppuccin_window_current_text " #W"
+
+set -g @catppuccin_date_time_text " %m/%d %R"
+set -g status-left ""
+set -g status-right "#[fg=$tmux_conf_theme_colour_2,bg=$tmux_conf_theme_colour_1]#[fg=white,bg=$tmux_conf_theme_colour_2]#(echo; nice cut -c3- '#{TMUX_CONF}' | sh -s _battery_status '↑' '↓')#{?@battery_status,#{@battery_status},}#(nice cut -c3- '#{TMUX_CONF}' | sh -s _bar 'gradient' '◻' '◼' 'auto' '#{@battery_charge}' '#{client_width}')#[fg=white,bg=$tmux_conf_theme_colour_2]#{?@battery_percentage, #{@battery_percentage},} #{ram_icon} #{ram_percentage} %m/%d %R #{?client_prefix,#[fg=#8839ef bg=$tmux_conf_theme_colour_2],#[fg=#{@thm_mauve} bg=$tmux_conf_theme_colour_2]}#{?client_prefix,#[fg=#{@thm_crust} bg=#8839ef],#[fg=#{@thm_crust} bg=#{@thm_mauve}]} #{?#{==:#(uname -s),Darwin},,} #{?client_prefix,#[fg=#8839ef bg=$tmux_conf_theme_colour_1],#[fg=#{@thm_mauve} bg=$tmux_conf_theme_colour_1]}"
+
+# clear any stale Material-Design-Icon overrides (the font doesn't cover them);
+# tmux-battery's own fallback icons (🔌 / 🔋 / block bars) are plain and safe
+set -ug @batt_icon_charge_tier1
+set -ug @batt_icon_charge_tier2
+set -ug @batt_icon_charge_tier3
+set -ug @batt_icon_charge_tier4
+set -ug @batt_icon_charge_tier5
+set -ug @batt_icon_charge_tier6
+set -ug @batt_icon_charge_tier7
+set -ug @batt_icon_charge_tier8
+set -ug @batt_icon_status_charged
+set -ug @batt_icon_status_charging
+set -ug @batt_icon_status_discharging
+set -ug @batt_icon_status_unknown
+set -ug @batt_icon_status_attached
+
+run '~/.tmux/plugins/tmux-battery/battery.tmux'
+run '~/.tmux/plugins/tmux-cpu/cpu.tmux'
+run '~/.tmux/plugins/tmux/catppuccin.tmux'
 
 # ------------------------------------------------------------------------------
 

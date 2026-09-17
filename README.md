@@ -10,7 +10,8 @@ Wayne 的終端設定檔備份。
 | `zsh/.zprofile` | `~/.zprofile` |
 | `zsh/.bashrc` | `~/.bashrc` |
 | `zsh/.p10k.zsh` | `~/.p10k.zsh` |
-| `tmux/.tmux.conf.local` | `~/.tmux.conf.local` |
+| `tmux/.tmux.conf.local` | `~/.tmux.conf.local`（macOS 用） |
+| `hosts/dgx-spark/tmux/.tmux.conf.local` | `~/.tmux.conf.local`（DGX Spark / Linux 專用，取代上面那份） |
 | `git/.gitconfig` | `~/.gitconfig` |
 | `git/ignore` | `~/.config/git/ignore` |
 | `ghostty/config` | `~/.config/ghostty/config` |

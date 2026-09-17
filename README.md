@@ -13,6 +13,7 @@ Wayne 的終端設定檔備份。
 | `zsh/.p10k.zsh` | `~/.p10k.zsh` |
 | `tmux/.tmux.conf.local` | `~/.tmux.conf.local`（macOS 用） |
 | `hosts/dgx-spark/tmux/.tmux.conf.local` | `~/.tmux.conf.local`（DGX Spark / Linux 專用，取代上面那份） |
+| `tmux/catppuccin_tmux.conf.patched` | `~/.tmux/plugins/tmux/catppuccin_tmux.conf`（覆蓋 catppuccin/tmux 外掛本身的檔案，補上兩處拿掉寫死空格，讓 tab 名稱跟編號徽章之間的圆角對稱；`git clone`/TPM 重裝這個外掛後要記得重蓋一次，否則這個小修正會被還原） |
 | `git/.gitconfig` | `~/.gitconfig`（macOS 用） |
 | `hosts/dgx-spark/git/.gitconfig` | `~/.gitconfig`（DGX Spark / Linux 專用，取代上面那份；用 `gh auth git-credential` 認證） |
 | `git/ignore` | `~/.config/git/ignore` |
@@ -84,6 +85,15 @@ cp ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp ~/dotfiles/claude/commands/* ~/.claude/commands/
 mkdir -p ~/.claude/plugins/claude-hud
 cp ~/dotfiles/claude/plugins/claude-hud/config.json ~/.claude/plugins/claude-hud/config.json
+
+# tmux status bar plugins（oh-my-tmux 的 theme engine 關掉了，交給 catppuccin/tmux 管）
+git clone https://github.com/catppuccin/tmux.git ~/.tmux/plugins/tmux
+git clone https://github.com/tmux-plugins/tmux-battery.git ~/.tmux/plugins/tmux-battery
+git clone https://github.com/tmux-plugins/tmux-cpu.git ~/.tmux/plugins/tmux-cpu
+git clone https://github.com/tmux-plugins/tmux-resurrect ~/.tmux/plugins/tmux-resurrect
+git clone https://github.com/tmux-plugins/tmux-continuum ~/.tmux/plugins/tmux-continuum
+# 覆蓋 catppuccin/tmux 自己的檔案：拿掉兩處寫死的空格，讓 tab 名稱跟編號徽章之間的圆角對稱
+cp ~/dotfiles/tmux/catppuccin_tmux.conf.patched ~/.tmux/plugins/tmux/catppuccin_tmux.conf
 ```
 
 ### 3. 設定 Claude Code

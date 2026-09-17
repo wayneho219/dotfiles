@@ -6,16 +6,19 @@ Wayne 的終端設定檔備份。
 
 | 檔案 | 複製到 |
 |---|---|
-| `zsh/.zshrc` | `~/.zshrc` |
+| `zsh/.zshrc` | `~/.zshrc`（macOS 用） |
+| `hosts/dgx-spark/zsh/.zshrc` | `~/.zshrc`（DGX Spark / Linux 專用，取代上面那份；結尾用 nvm 不是 pyenv） |
 | `zsh/.zprofile` | `~/.zprofile` |
 | `zsh/.bashrc` | `~/.bashrc` |
 | `zsh/.p10k.zsh` | `~/.p10k.zsh` |
 | `tmux/.tmux.conf.local` | `~/.tmux.conf.local`（macOS 用） |
 | `hosts/dgx-spark/tmux/.tmux.conf.local` | `~/.tmux.conf.local`（DGX Spark / Linux 專用，取代上面那份） |
-| `git/.gitconfig` | `~/.gitconfig` |
+| `git/.gitconfig` | `~/.gitconfig`（macOS 用） |
+| `hosts/dgx-spark/git/.gitconfig` | `~/.gitconfig`（DGX Spark / Linux 專用，取代上面那份；用 `gh auth git-credential` 認證） |
 | `git/ignore` | `~/.config/git/ignore` |
-| `ghostty/config` | `~/.config/ghostty/config` |
-| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `ghostty/config` | `~/.config/ghostty/config`（macOS 專用，Ghostty 是 GUI 終端機，Linux 主機用不到） |
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md`（macOS 用） |
+| `hosts/dgx-spark/claude/CLAUDE.md` | `~/.claude/CLAUDE.md`（DGX Spark / Linux 專用，取代上面那份；開頭多了硬體/軟體環境資訊） |
 | `claude/settings.json` | `~/.claude/settings.json`（合併，勿直接覆蓋） |
 | `claude/commands/` | `~/.claude/commands/` |
 | `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |

@@ -5,17 +5,17 @@
   "display": {
     "showModel": true,
     "showContextBar": true,
-    "showTools": true,
+    "showTools": false,
     "showAgents": true,
     "showTodos": true,
     "showProject": true,
-    "showConfigCounts": true,
+    "showConfigCounts": false,
     "showTokenBreakdown": true,
     "showSpeed": true,
     "showUsage": true,
     "showDuration": true,
     "showSessionName": true,
-    "showSessionTokens": true,
+    "showSessionTokens": false,
     "customLine": ""
   },
   "gitStatus": {

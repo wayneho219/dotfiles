@@ -49,7 +49,9 @@
     "pyright-lsp@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "clangd-lsp@claude-plugins-official": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "desktop-commander@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-hud": {
@@ -72,5 +74,7 @@
     }
   },
   "skipDangerousModePermissionPrompt": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "model": "opus",
+  "switchModelsOnFlag": true
 }

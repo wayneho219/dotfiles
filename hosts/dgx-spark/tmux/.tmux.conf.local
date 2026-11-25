@@ -505,6 +505,8 @@ set -g @catppuccin_window_current_right_separator "#[fg=#{@_ctp_status_bg},rever
 set -g @catppuccin_window_number_position "right"
 set -g @catppuccin_window_text " #W"
 set -g @catppuccin_window_current_text " #W"
+# zoomed current window -> same deep purple as prefix highlight
+set -g @catppuccin_window_current_number_color "#{?window_zoomed_flag,#8839ef,#{@thm_mauve}}"
 
 set -g @catppuccin_date_time_text " %m/%d %R"
 set -g status-left ""

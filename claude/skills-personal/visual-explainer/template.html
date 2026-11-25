@@ -1,0 +1,582 @@
+<title>ARM 板開機全程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 上方步驟列 → 左側電路板示意（sticky）＋右側說明面板 ；手機寬度堆疊成單欄 */
+:root{
+  --bg:#edf0ec; --fg:#18211d; --muted:#5a6861; --panel:#fbfcfa; --line:#d3dad5;
+  --accent:#b25d17; --accent-soft:#f6e6d6; --ok:#2f7a55; --ok-soft:#dcefe4;
+  --pcb:#1e4a3d; --pcb-edge:#173a30; --silk:#e8efe9; --chip:#1a1d1f; --chip-hi:#2c3236;
+  --pad:#caa052; --trace:#3f7a63; --flow:#ffab4a;
+  --log-bg:#16201c; --log-fg:#cfe3d8;
+  --f-display:"Chakra Petch", "Noto Sans TC", system-ui, sans-serif;
+  --f-body:"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1311; --fg:#e2e9e5; --muted:#91a098; --panel:#151c19; --line:#27332e;
+  --accent:#e98f47; --accent-soft:#3a2716; --ok:#6cc79a; --ok-soft:#16301f;
+  --pcb:#163a30; --pcb-edge:#0f2a22; --silk:#dfe8e2; --chip:#0c0e0f; --chip-hi:#23292c;
+  --pad:#b88f45; --trace:#2f6552; --flow:#ffb35c;
+  --log-bg:#0a0f0d; --log-fg:#cfe3d8; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1311; --fg:#e2e9e5; --muted:#91a098; --panel:#151c19; --line:#27332e;
+  --accent:#e98f47; --accent-soft:#3a2716; --ok:#6cc79a; --ok-soft:#16301f;
+  --pcb:#163a30; --pcb-edge:#0f2a22; --silk:#dfe8e2; --chip:#0c0e0f; --chip-hi:#23292c;
+  --pad:#b88f45; --trace:#2f6552; --flow:#ffb35c;
+  --log-bg:#0a0f0d; --log-fg:#cfe3d8; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.75}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:16px 48px;display:flex;flex-direction:column;gap:22px}
+
+
+.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:8px 0;margin:-8px 0;list-style:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg)}
+.steps button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);height:100%;box-sizing:border-box}
+.steps button:hover{border-color:var(--accent)}
+.steps button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps .n{font-family:var(--f-display);font-size:12px;color:var(--muted);letter-spacing:.08em}
+.steps .k{font-weight:700;font-size:14px;line-height:1.35}
+.steps button[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.steps button[aria-current="step"] .n{color:#fff;opacity:.85}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start}
+figure{margin:0;position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--nav-h,76px) + 12px);display:flex;flex-direction:column;gap:8px}
+.board-box{overflow-x:auto;border-radius:12px}
+svg.board{display:block;width:100%;min-width:560px;height:auto}
+figcaption{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.key{display:inline-flex;align-items:center;gap:6px}
+.key i{display:inline-block;width:22px;height:0;border-top:3px dashed var(--flow)}
+.key b{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid var(--flow)}
+
+/* SVG parts */
+.pcb{fill:var(--pcb);stroke:var(--pcb-edge);stroke-width:4}
+.hole{fill:var(--bg);stroke:var(--pad);stroke-width:3}
+.trace{fill:none;stroke:var(--trace);stroke-width:2}
+.silk{fill:var(--silk);font-family:var(--f-display);font-size:11px;letter-spacing:.06em;opacity:.8}
+.lbl{fill:var(--silk);font-family:var(--f-display);font-weight:600;font-size:13px}
+.lbl-tc{fill:var(--silk);font-family:var(--f-body);font-weight:500;font-size:12px}
+.sub{fill:var(--silk);font-family:var(--f-body);font-size:10px;opacity:.75}
+.body{fill:var(--chip);stroke:transparent;stroke-width:2.5;transition:stroke .25s}
+.inner .body{fill:var(--chip-hi)}
+.socbody{fill:var(--chip);stroke:#000;stroke-opacity:.3;stroke-width:2}
+.pin{fill:var(--pad)}
+.part{transition:opacity .3s;cursor:pointer}
+.part:hover .body,.part:focus-visible .body{stroke:var(--silk)}
+.part:focus{outline:none}
+.board.dim .part:not(.hot){opacity:.35}
+.board.focusing .part:not(.focus){opacity:.18}
+.board.focusing .flow.on{opacity:.25}
+.part.focus .body{stroke:var(--flow);stroke-width:4;filter:drop-shadow(0 0 10px var(--flow))}
+.part.hot .body{stroke:var(--flow);filter:drop-shadow(0 0 6px var(--flow))}
+.flow{fill:none;stroke:var(--flow);stroke-width:3;stroke-linecap:round;stroke-dasharray:7 7;opacity:0;transition:opacity .3s;pointer-events:none}
+.flow.on{opacity:1;animation:run 0.9s linear infinite}
+.arrowhead{fill:var(--flow)}
+@keyframes run{to{stroke-dashoffset:-14}}
+@media (prefers-reduced-motion: reduce){.flow.on{animation:none}.part,.body,.flow{transition:none}}
+
+/* panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel h2{font-family:var(--f-display);font-size:24px;margin:0;line-height:1.25;text-wrap:balance}
+.panel h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;font-family:var(--f-display);font-weight:600}
+.panel p{margin:0;max-width:65ch}
+.panel ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.plain{font-size:17px;font-weight:500;line-height:1.6;padding:12px 14px;border-radius:8px;background:var(--ok-soft);color:var(--fg)}
+ol.seq{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;counter-reset:seq}
+ol.seq li{counter-increment:seq;display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:7px 8px;border-radius:8px;cursor:pointer}
+ol.seq li::before{content:counter(seq);font-family:var(--f-display);font-weight:700;font-size:13px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+ol.seq li:hover,ol.seq li:focus-visible,ol.seq li.on{background:var(--accent-soft);outline:none}
+ol.seq li:hover::before,ol.seq li:focus-visible::before,ol.seq li.on::before{background:var(--accent);border-color:var(--accent);color:#fff}
+ol.seq .who{display:inline-block;font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.04em;padding:0 7px;margin-right:6px;border-radius:4px;background:var(--pcb);color:var(--silk);vertical-align:1px}
+.hint{font-size:12px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;margin-left:6px}
+.where{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.where span{font-family:var(--f-display);font-size:13px;padding:3px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.where span.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.where em{font-style:normal;font-size:13px;color:var(--muted)}
+pre.log{margin:0;background:var(--log-bg);color:var(--log-fg);font-family:var(--f-mono);font-size:12px;line-height:1.6;padding:14px 16px;border-radius:8px;overflow-x:auto;white-space:pre}
+table.mem{width:100%;border-collapse:collapse;font-size:13px}
+table.mem td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+table.mem td:first-child{font-family:var(--f-mono);white-space:nowrap;color:var(--accent);width:1%;font-variant-numeric:tabular-nums}
+.stuck{border-left:3px solid var(--accent);padding:8px 12px;background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:14px}
+.src{font-size:13px;display:flex;flex-direction:column;gap:4px}
+.src a{color:var(--accent);word-break:break-all}
+.src .tag{display:inline-block;font-size:11px;font-weight:700;padding:0 8px;border-radius:999px;margin-right:6px;background:var(--ok-soft);color:var(--ok)}
+.src .tag.warn{background:var(--accent-soft);color:var(--accent)}
+.pager{display:flex;justify-content:space-between;gap:8px}
+.pager button{font:inherit;font-weight:500;cursor:pointer;padding:8px 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.pager button:hover:not(:disabled){border-color:var(--accent)}
+.pager button:disabled{opacity:.4;cursor:default}
+.pager button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* glossary terms + popover */
+.term{all:unset;cursor:help;border-bottom:1.5px dotted var(--accent);color:inherit;font-weight:500}
+.term:hover,.term:focus-visible{background:var(--accent-soft);border-radius:3px}
+.pop{position:absolute;z-index:10;max-width:min(340px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:14px;line-height:1.65}
+.pop b{display:block;font-family:var(--f-display);font-size:15px;margin-bottom:4px}
+.pop .eg{display:block;margin-top:6px;color:var(--muted);font-size:13px}
+
+.note{font-size:13px;color:var(--muted);margin:0;max-width:90ch}
+
+/* 大字版：整體字級與元件放大，方便閱讀 */
+body{font-size:20px;line-height:1.8}
+.wrap{max-width:1440px}
+.grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.steps button{padding:12px 14px}
+.steps .n{font-size:13px}
+.steps .k{font-size:16px}
+figcaption{font-size:15px}
+.key b,.key u{width:15px;height:15px}
+.panel{padding:26px;gap:22px}
+.panel h2{font-size:32px}
+.panel h3{font-size:14px}
+.plain{font-size:22px}
+.ds ul{font-size:19px}
+.ds .tagd,.ds .tags{font-size:14px}
+ol.seq li{grid-template-columns:32px minmax(0,1fr);padding:9px 10px}
+ol.seq li::before{width:32px;height:32px;font-size:15px}
+ol.seq .who{font-size:13px}
+.hint{font-size:14px}
+.where span{font-size:15px;padding:4px 14px}
+pre.log{font-size:14.5px;line-height:1.7}
+table.mem{font-size:17px}
+.stuck{font-size:19px}
+.src{font-size:15px}
+.src .tag{font-size:13px}
+.pager button{font-size:17px;padding:10px 20px}
+.pop{font-size:18px;max-width:min(440px,calc(100vw - 32px))}
+.pop b{font-size:19px}
+.pop .eg{font-size:15px}
+.note{font-size:16px}
+.lname{font-size:14px}
+.bt{font-size:16px}
+.bs,.bm,.bd,.by{font-size:13px}
+
+@media (max-width: 900px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  figure{position:static}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+.en{font-size:.82em;color:var(--muted);font-weight:400}
+</style>
+
+<div class="wrap">
+
+  <ol class="steps" id="steps"></ol>
+
+  <div class="grid">
+    <figure>
+      <div class="board-box">
+      <svg class="board dim" id="board" viewBox="0 0 760 510" role="img" aria-label="Allwinner A64 開發板示意圖：電源、PMIC、SoC（內含 CPU、BootROM、SRAM、eFuse、DDR 控制器、周邊控制器）、DRAM、microSD、eMMC、乙太網路、UART 除錯接頭">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path class="arrowhead" d="M0 0 L10 5 L0 10 z"/>
+          </marker>
+        </defs>
+
+        <rect class="pcb" x="10" y="10" width="740" height="490" rx="18"/>
+        <circle class="hole" cx="34" cy="34" r="9"/><circle class="hole" cx="726" cy="34" r="9"/>
+        <circle class="hole" cx="34" cy="476" r="9"/><circle class="hole" cx="726" cy="476" r="9"/>
+
+        <path class="trace" d="M110 75 H150"/>
+        <path class="trace" d="M230 80 H240 V170 H250"/>
+        <path class="trace" d="M200 420 H225"/>
+        <path class="trace" d="M270 400 V360"/>
+        <path class="trace" d="M140 380 V368 H262"/>
+        <path class="trace" d="M425 84 V140"/>
+        <path class="trace" d="M490 335 H600 V410"/>
+        <path class="trace" d="M490 345 H690"/>
+        <g class="trace">
+          <path d="M490 158 H560"/><path d="M490 166 H560"/><path d="M490 174 H560"/><path d="M490 182 H560"/>
+          <path d="M490 190 H560"/><path d="M490 198 H560"/><path d="M490 206 H560"/>
+          <path d="M490 250 H560"/><path d="M490 258 H560"/><path d="M490 266 H560"/><path d="M490 274 H560"/>
+          <path d="M490 282 H560"/><path d="M490 290 H560"/><path d="M490 298 H560"/>
+        </g>
+
+        <g class="part" id="p-pwr" data-term="電源輸入">
+          <rect class="body" x="24" y="50" width="86" height="50" rx="6"/>
+          <circle cx="56" cy="75" r="11" fill="var(--pad)"/><circle cx="56" cy="75" r="4" fill="var(--chip)"/>
+          <text class="lbl" x="74" y="80">5V</text>
+          <text class="silk" x="24" y="118">DC IN</text>
+        </g>
+        <g class="part" id="p-pmic" data-term="PMIC">
+          <rect class="body" x="150" y="45" width="80" height="60" rx="4"/>
+          <text class="lbl" x="166" y="72">PMIC</text>
+          <text class="sub" x="160" y="90">AXP803</text>
+        </g>
+        <g class="part" id="p-fel" data-term="FEL">
+          <rect class="body" x="365" y="36" width="120" height="48" rx="4"/>
+          <circle cx="398" cy="60" r="13" fill="var(--silk)"/><circle cx="398" cy="60" r="8" fill="var(--chip-hi)"/>
+          <text class="lbl" x="420" y="65">FEL</text>
+          <text class="silk" x="365" y="100">FEL 按鈕</text>
+        </g>
+
+        <g class="part" id="p-soc" data-term="SoC">
+          <rect class="body socbody" x="250" y="140" width="240" height="220" rx="6"/>
+          <text class="lbl" x="262" y="161">SoC</text>
+          <text class="sub" x="292" y="161">Allwinner A64 · 4× Cortex-A53</text>
+        </g>
+        <g class="part inner" id="p-cpu" data-term="CPU core">
+          <rect class="body" x="262" y="172" width="104" height="80" rx="3"/>
+          <rect x="274" y="184" width="22" height="22" fill="var(--pad)" opacity=".85"/>
+          <rect x="302" y="184" width="22" height="22" fill="var(--pad)" opacity=".5"/>
+          <rect x="274" y="212" width="22" height="22" fill="var(--pad)" opacity=".5"/>
+          <rect x="302" y="212" width="22" height="22" fill="var(--pad)" opacity=".5"/>
+          <text class="lbl" x="330" y="200" font-size="12">CPU</text>
+          <text class="sub" x="330" y="216">core</text>
+          <text class="sub" x="330" y="229">0–3</text>
+        </g>
+        <g class="part inner" id="p-bootrom" data-term="BootROM">
+          <rect class="body" x="376" y="172" width="102" height="36" rx="3"/>
+          <text class="lbl" x="386" y="195" font-size="12">BootROM</text>
+        </g>
+        <g class="part inner" id="p-sram" data-term="SRAM">
+          <rect class="body" x="376" y="216" width="102" height="36" rx="3"/>
+          <text class="lbl" x="386" y="239" font-size="12">SRAM A1 32K</text>
+        </g>
+        <g class="part inner" id="p-efuse" data-term="eFuse">
+          <rect class="body" x="262" y="260" width="104" height="30" rx="3"/>
+          <text class="lbl" x="272" y="280" font-size="12">eFuse (SID)</text>
+        </g>
+        <g class="part inner" id="p-ddrc" data-term="DDR 控制器">
+          <rect class="body" x="376" y="260" width="102" height="30" rx="3"/>
+          <text class="lbl-tc" x="386" y="280">DDR 控制器</text>
+        </g>
+        <g class="part inner" id="p-periph" data-term="周邊控制器">
+          <rect class="body" x="262" y="298" width="216" height="50" rx="3"/>
+          <text class="lbl-tc" x="272" y="318">周邊控制器</text>
+          <text class="sub" x="272" y="336">UART · SD/MMC · ETH MAC · I2C · GPIO</text>
+        </g>
+
+        <g class="part" id="p-dram" data-term="DRAM">
+          <rect class="body" x="560" y="150" width="110" height="70" rx="3"/>
+          <rect class="body" x="560" y="240" width="110" height="70" rx="3"/>
+          <text class="lbl" x="574" y="182">DDR3</text><text class="sub" x="574" y="200">512 MB</text>
+          <text class="lbl" x="574" y="272">DDR3</text><text class="sub" x="574" y="290">512 MB</text>
+          <text class="silk" x="560" y="140">DRAM 1GB</text>
+        </g>
+
+        <g class="part" id="p-sd" data-term="microSD">
+          <rect class="body" x="40" y="380" width="160" height="90" rx="6"/>
+          <text class="lbl" x="52" y="400">microSD</text>
+          <rect x="52" y="410" width="64" height="46" rx="3" fill="var(--chip-hi)"/>
+          <rect x="122" y="410" width="66" height="46" rx="3" fill="var(--chip-hi)"/>
+          <text class="sub" x="58" y="429">p1 boot</text><text class="sub" x="58" y="445">FAT</text>
+          <text class="sub" x="128" y="429">p2 rootfs</text><text class="sub" x="128" y="445">ext4</text>
+        </g>
+        <g class="part" id="p-emmc" data-term="eMMC">
+          <rect class="body" x="225" y="400" width="90" height="60" rx="3"/>
+          <text class="lbl" x="243" y="428">eMMC</text>
+          <text class="sub" x="243" y="445">8 GB</text>
+        </g>
+        <g class="part" id="p-eth" data-term="Ethernet">
+          <rect class="body" x="600" y="410" width="100" height="70" rx="4"/>
+          <rect x="620" y="424" width="60" height="36" rx="2" fill="var(--chip-hi)"/>
+          <text class="lbl" x="630" y="447" font-size="12">RJ45</text>
+          <text class="sub" x="620" y="474">Ethernet</text>
+        </g>
+        <g class="part" id="p-uart" data-term="UART">
+          <rect class="body" x="690" y="320" width="40" height="76" rx="3"/>
+          <circle class="pin" cx="710" cy="338" r="6"/><circle class="pin" cx="710" cy="358" r="6"/><circle class="pin" cx="710" cy="378" r="6"/>
+          <text class="silk" x="686" y="312" font-size="10">UART0</text>
+          <text class="sub" x="648" y="370" font-size="9">GND TX RX</text>
+        </g>
+
+        <text class="silk" x="300" y="488">A64 開發板示意（類似 Pine64）· 非真實電路</text>
+
+        <path class="flow" id="f-pwr" d="M110 75 H146" marker-end="url(#ah)"/>
+        <path class="flow" id="f-pmic" d="M230 80 H240 V170 H246" marker-end="url(#ah)"/>
+        <path class="flow" id="f-fel" d="M425 84 V168" marker-end="url(#ah)"/>
+        <path class="flow" id="f-sd-sram" d="M120 380 C 120 300, 300 250, 372 234" marker-end="url(#ah)"/>
+        <path class="flow" id="f-ddr" d="M478 275 C 520 275, 530 265, 556 265" marker-end="url(#ah)"/>
+        <path class="flow" id="f-sd-dram" d="M200 445 C 380 505, 540 470, 598 316" marker-end="url(#ah)"/>
+        <path class="flow" id="f-uart" d="M478 312 C 560 312, 640 330, 686 340" marker-end="url(#ah)"/>
+        <path class="flow" id="f-eth" d="M650 410 C 650 370, 630 350, 628 316" marker-end="url(#ah)"/>
+        <path class="flow" id="f-cpu-dram" d="M366 190 C 420 118, 520 110, 580 146" marker-end="url(#ah)"/>
+        <path class="flow" id="f-sd-soc" d="M150 380 C 170 350, 220 335, 258 328" marker-end="url(#ah)"/>
+      </svg>
+      </div>
+      <figcaption>
+        <span class="key"><b></b>這一步用到的硬體</span>
+        <span class="key"><i></i>資料或控制的流向</span>
+        <span>點零件看它是什麼</span>
+      </figcaption>
+    </figure>
+
+    <section class="panel" aria-live="polite">
+      <h2 id="title"></h2>
+      <p class="plain" id="plain"></p>
+      <div>
+        <h3>程式在哪裡執行</h3>
+        <div class="where" id="where"></div>
+      </div>
+      <div><h3>依序發生了什麼<span class="hint">滑過或點一下，板子上會標出那個零件</span></h3><ol class="seq" id="seq"></ol></div>
+      <div><h3>要記住的</h3><ul id="pts"></ul></div>
+      <div><h3>UART 上看到的 log（示意）</h3><pre class="log" id="log"></pre></div>
+      <div><h3>記憶體裡有什麼</h3><table class="mem" id="mem"></table></div>
+      <div class="stuck" id="stuck"></div>
+      <div><h3>查證來源</h3><div class="src" id="src"></div></div>
+      <div class="pager">
+        <button type="button" id="prev">← 上一步</button>
+        <button type="button" id="next">下一步 →</button>
+      </div>
+    </section>
+  </div>
+
+
+  <p class="note">位址、SRAM 大小、開機順序、SD 卡 8 KB 位置、FEL 的 USB ID、ARM64 進入 kernel 的規則都查過來源（見每一步的「查證來源」）。log 是依照真實格式寫的示意，時間戳、容量等數字會因板子而不同。</p>
+</div>
+
+<script>
+/* 名詞小辭典：d = 白話定義，e = 例子或比喻（可省略）。步驟文字中出現的詞會自動變成可點的解釋。 */
+const GLOSSARY = {
+  'SoC': { d:'System on Chip，系統單晶片。把 CPU、記憶體控制器、各種周邊控制器全部做進同一顆晶片。', e:'手機、樹莓派、這塊板子的「大腦」都是一顆 SoC。' },
+  'CPU core': { d:'CPU 核心，真正執行指令的單元。A64 有 4 顆 Cortex-A53 核心。' },
+  'PMIC': { d:'Power Management IC，電源管理晶片。把輸入的 5V 轉成 SoC、DRAM 各自需要的不同電壓，並控制開啟順序。', e:'A64 板子常搭配 X-Powers 的 AXP803。' },
+  '電源輸入': { en:'power input', d:'板子的 5V 直流電源插座，整塊板子的電都從這裡來。' },
+  'power sequencing': { d:'上電順序。多組電壓必須照晶片規定的先後順序打開，順序錯了晶片可能起不來。' },
+  'reset': { d:'重置訊號。拉住時 CPU 不動，放開後 CPU 才從固定位址開始執行。' },
+  'reset vector': { d:'CPU 被 reset 放開後，第一條指令所在的固定位址，由晶片設計決定。不一定指向 BootROM：A64 指向 BootROM，但 STM32 預設直接指向使用者程式所在的 Flash。', e:'STM32 的 0x0000_0000 會依 BOOT0 腳位對應到 Flash、ST 內建 bootloader 或 SRAM。' },
+  '晶振': { en:'crystal oscillator', d:'晶體振盪器（crystal），產生穩定頻率的零件，是整顆晶片的時脈來源。A64 使用 24 MHz。', e:'kernel log 裡的「running at 24.00MHz」就是它。' },
+  'BootROM': { d:'晶片出廠時就燒死在裡面的一小段程式，無法修改。唯一的工作是找到並載入下一階段的開機程式。', e:'A64 的 BootROM 位於位址 0x0000_0000。' },
+  'SRAM': { d:'晶片內部的小容量記憶體，一上電就能用，不需要初始化。A64 的 SRAM A1 只有 32 KB。', e:'和 DRAM 相比：SRAM 小但立刻能用，DRAM 大但要先設定。' },
+  'DRAM': { d:'板子上的主記憶體（這塊是 1 GB 的 DDR3），容量大但要先由 DDR 控制器設定好才能使用。', e:'A64 的 DRAM 從位址 0x4000_0000 開始。' },
+  'DDR 控制器': { en:'DDR controller', d:'SoC 裡負責和 DRAM 溝通的電路。要先設定時序參數，DRAM 才能正常讀寫。' },
+  'DDR training': { d:'DDR 控制器自動測試並調整訊號的時間延遲，找出這塊板子最穩定的設定。' },
+  'eFuse': { d:'晶片裡只能燒寫一次的保險絲記憶體，燒了就改不回來。用來存晶片序號、出廠校正值，或 Secure Boot 用的公鑰雜湊。', e:'A64 的 eFuse 叫 SID（Security ID），位於 0x01C1_4000。' },
+  'Secure Boot': { d:'安全開機。每一階段載入下一階段前先檢查數位簽章，被竄改的程式就拒絕執行。' },
+  'FEL': { d:'Allwinner 晶片的 USB 下載模式。BootROM 找不到可開機的裝置，或開機時按住 FEL 按鈕，就會進入這個模式，讓電腦透過 USB 直接寫入並執行程式。', e:'常用來救磚：SD 卡、eMMC 都壞了也能開機。' },
+  'sector': { d:'儲存裝置讀寫的最小單位，SD 卡是 512 bytes。第 16 個 sector 就是 8 KB 的位置。' },
+  'microSD': { d:'可拔插的記憶卡，A64 BootROM 第一個嘗試的開機來源。這裡分成兩個分割區：p1 放 kernel 等開機檔（FAT 格式），p2 放整個 Linux 系統（ext4 格式）。' },
+  'eMMC': { d:'焊在板子上的快閃記憶體，就像板載的 SD 卡。量產產品通常從 eMMC 開機。' },
+  'SPI NOR Flash': { d:'容量小但穩定的快閃記憶體晶片，常用來放 bootloader。A64 BootROM 最後才嘗試它。' },
+  'SPL': { d:'Secondary Program Loader，U-Boot 的迷你版。因為要塞進 32 KB 的 SRAM，只做最必要的事：初始化 DRAM、載入下一階段。' },
+  'U-Boot': { d:'嵌入式 Linux 最常用的開機程式（bootloader）。負責把 kernel 從儲存裝置搬到記憶體，再把控制權交給它。' },
+  'bootloader': { d:'開機載入程式。在作業系統之前執行，負責把作業系統載入記憶體。' },
+  'TF-A': { d:'Trusted Firmware-A，ARM 官方的安全韌體。它的 BL31 會一直留在記憶體裡，負責 CPU 開關機等需要最高權限的工作。A64 一定要有它。' },
+  'BL31': { d:'TF-A 裡常駐執行的那一段程式。在 A64 上放在 SRAM A2。' },
+  'bring-up': { d:'新板子第一次讓它成功開機的過程，通常從量電源開始，一路除錯到進入系統。' },
+  'UART': { d:'最簡單的序列通訊介面，只用 TX、RX、GND 三條線。開機訊息都從這裡印出來，接 USB-TTL 轉接線到電腦就能看到。', e:'常見設定是 115200 bps。' },
+  '環境變數': { en:'environment variable', d:'U-Boot 的設定值，例如 bootcmd（開機要執行的指令）、bootargs（要傳給 kernel 的參數）。' },
+  'bootcmd': { d:'U-Boot 倒數結束後自動執行的指令，通常是「從 SD 卡讀 kernel 和 DTB，然後開機」。' },
+  'bootargs': { d:'傳給 kernel 的參數字串，例如 console=ttyS0,115200（log 從哪個 UART 印出）、root=/dev/mmcblk0p2（系統放在哪個分割區）。' },
+  'DTB': { d:'Device Tree Blob，裝置樹。一份描述「這塊板子上有哪些硬體、在什麼位址」的清單。ARM 板子無法自動偵測硬體，要靠它告訴 kernel。', e:'裡面寫著：UART0 在 0x01C2_8000、SD 卡控制器在 0x01C0_F000。' },
+  'Image': { d:'ARM64 Linux kernel 的執行檔，U-Boot 會把它讀到 DRAM 裡。' },
+  'x0 暫存器': { en:'x0 register', d:'ARM64 CPU 的第一個通用暫存器。規定跳進 kernel 時要把 DTB 的位址放在這裡，kernel 才找得到 DTB。' },
+  'function pointer': { d:'存著「函式位址」的指標。呼叫它就是跳到那個位址執行。U-Boot 跳進 kernel 本質上就是這樣。' },
+  'tftp': { d:'簡單的網路傳檔協定。開發時讓 U-Boot 從電腦透過網路抓 kernel，不用每次重燒 SD 卡。' },
+  'earlycon': { d:'kernel 參數，讓 kernel 在很早期（正式的 UART driver 還沒載入前）就能印出訊息，方便找開機很早就當掉的問題。' },
+  'MMU': { d:'Memory Management Unit，記憶體管理單元。負責把程式看到的虛擬位址轉換成真正的實體位址。' },
+  '虛擬位址': { en:'virtual address', d:'程式看到的位址，不是記憶體真正的位置，要經過 MMU 轉換。開啟 MMU 之後，printf 印出的指標值都是虛擬位址。' },
+  'driver': { d:'驅動程式。kernel 裡負責操作某個硬體的程式碼。' },
+  'compatible': { d:'DTB 裡每個硬體節點都有的字串，用來配對 driver。driver 宣告自己支援哪些字串，kernel 就把對應的硬體交給它。', e:'A64 的 UART0 寫著 compatible = "snps,dw-apb-uart"。' },
+  'probe()': { d:'driver 裡的初始化函式。kernel 配對成功後呼叫它，讓 driver 設定硬體並註冊裝置。' },
+  'dmesg': { d:'Linux 指令，顯示 kernel 的 log，開機後可以用它重看開機過程。' },
+  'Kernel panic': { d:'kernel 遇到無法處理的錯誤，直接停止運作並印出原因。' },
+  'rootfs': { d:'root filesystem，根檔案系統。存放 /bin、/etc 等所有程式與設定的分割區，掛載後就是 /。' },
+  'init': { d:'kernel 啟動的第一個使用者程式，負責啟動其他所有服務。常見的有 systemd、BusyBox init。' },
+  'PID': { d:'Process ID，每個執行中程式的編號。init 永遠是 1 號。' },
+  'user space': { d:'一般程式執行的區域，權限受限，要透過 system call 請 kernel 幫忙操作硬體。相對的是 kernel space。' },
+  'BusyBox': { d:'把 ls、cp、sh 等上百個常用指令塞進一個小執行檔，嵌入式系統很常用。' },
+  'Buildroot': { d:'自動建出整套嵌入式 Linux（工具鏈、kernel、rootfs）的工具，比 Yocto 簡單。' },
+  'Ethernet': { d:'有線網路。開發時常用它搭配 tftp 從電腦載入 kernel。' },
+  '周邊控制器': { en:'peripheral controller', d:'SoC 裡控制各種外部介面的電路，例如 UART、SD 卡、網路、I2C、GPIO。driver 就是透過寫這些控制器的暫存器來操作硬體。' }
+};
+
+const STEPS = [
+  { k:'上電與 Reset', t:'上電與 Reset', run:null,
+    hot:['pwr','pmic','soc'], flows:['f-pwr','f-pmic'],
+    plain:'插電 → 電壓穩定 → CPU 醒來，到一個固定的位址找第一條指令。',
+    seq:[['pwr','5V 電源接上板子'],['pmic','PMIC 把 5V 轉成多組電壓，照 power sequencing 的順序打開'],['soc','晶振開始震盪，整顆 SoC 有了時脈'],['cpu','reset 放開，一顆 CPU core 從 reset vector 讀第一條指令'],['bootrom','reset vector 指向 BootROM，進入下一步']],
+    pts:['這時只有一顆 CPU core 醒來，另外三顆要等 kernel 叫醒','DRAM 還不能用，因為 DDR 控制器還沒設定','這個階段完全沒有程式可以印訊息，出問題只能用儀器量'],
+    log:'（這個階段沒有任何 log）\n\n要用示波器量 PMIC 輸出、reset 腳位和晶振的波形。',
+    mem:[['0x0000_0000','BootROM（唯讀）'],['0x0001_0000','SRAM A1 32 KB：空的'],['0x4000_0000','DRAM：還不能用']],
+    stuck:'完全沒反應：量電源電壓是否正確、reset 有沒有被放開、晶振有沒有起振。',
+    src:[['ok','linux-sunxi：A64 記憶體配置（BootROM 在 0x0，SRAM A1 在 0x10000）','https://linux-sunxi.org/A64/Memory_map'],['warn','電源與 reset 的描述為一般通則，未針對 A64 逐條查證','']] },
+
+  { k:'BootROM', t:'BootROM：找開機裝置', run:'ROM',
+    hot:['bootrom','fel','efuse','sd','sram'], flows:['f-fel','f-sd-sram'],
+    plain:'BootROM 是晶片自帶、改不了的小程式，工作只有一件：找到下一棒，把它搬進來。',
+    seq:[['bootrom','BootROM 開始執行'],['fel','先看 FEL 按鈕：有按住就直接進入 FEL 模式'],['sd','到 microSD 的第 16 個 sector（8 KB 處）找開機程式'],['emmc','SD 卡沒有，就換 eMMC，再來是 SPI NOR Flash'],['sram','找到了：檢查 checksum，把 SPL 搬進 SRAM A1'],['cpu','跳到 SRAM 執行 SPL']],
+    pts:['SRAM A1 只有 32 KB，所以 SPL 必須寫得很小','全部都找不到，或開機時按住 FEL 按鈕，就會進入 FEL 模式，可以從電腦透過 USB 灌程式進來救磚','啟用 Secure Boot 的晶片會在這一步檢查 SPL 的簽章，驗證用的公鑰雜湊燒在 eFuse 裡'],
+    log:'（BootROM 不會在 UART 印出任何訊息）\n\n進入 FEL 模式時，把板子的 USB OTG 接到電腦會看到：\n$ lsusb\nBus 001 Device 012: ID 1f3a:efe8 Allwinner Technology sunxi SoC OTG connector in FEL/flashing mode',
+    mem:[['0x0000_0000','▶ 執行中：BootROM'],['0x0001_0000','SRAM A1：SPL（剛從 SD 卡 8 KB 處載入）'],['0x4000_0000','DRAM：還不能用']],
+    stuck:'SPL 沒寫在 SD 卡 8 KB 的位置（燒錄的 dd 指令少了 seek=8），或檔案損毀導致 checksum 不符。板子會直接進入 FEL 模式。',
+    src:[['ok','U-Boot 官方文件：Allwinner 開機流程、8 KB 位置、FEL','https://docs.u-boot.org/en/latest/board/allwinner/sunxi.html'],['ok','linux-sunxi：FEL 模式與 USB ID 1f3a:efe8','https://linux-sunxi.org/FEL'],['ok','Linux kernel 的 A64 裝置樹（SID/eFuse 位址）','https://github.com/torvalds/linux/blob/master/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi']] },
+
+  { k:'SPL', t:'SPL：把 DRAM 叫醒', run:'SRAM',
+    hot:['sram','ddrc','dram','sd'], flows:['f-ddr','f-sd-dram'],
+    plain:'SPL 是 U-Boot 的迷你版，最重要的任務是讓 1 GB 的 DRAM 可以用。',
+    seq:[['sram','SPL 在 SRAM A1 開始執行'],['uart','初始化 UART，印出開機後的第一行 log'],['ddrc','設定 DDR 控制器，做 DDR training'],['dram','DRAM 可以用了（log 印出 DRAM: 1024 MiB）'],['sd','從 SD 卡載入 BL31 到 SRAM A2、完整版 U-Boot 到 DRAM'],['cpu','跳到 BL31，BL31 設定完再跳到 U-Boot']],
+    pts:['SPL 和完整版 U-Boot 來自同一份原始碼，只是 SPL 被編譯成能塞進 32 KB 的精簡版','DRAM 設定錯誤會導致後面所有步驟都失敗，新板子 bring-up 最常卡在這裡','A64 這類 64 位元的 Allwinner 晶片一定要有 BL31，它會一直留在 SRAM A2 裡負責 CPU 電源管理'],
+    log:'U-Boot SPL 2023.04 (Apr 03 2023 - 00:00:00 +0000)\nDRAM: 1024 MiB\nTrying to boot from MMC1\nNOTICE:  BL31: v2.9.0(release):v2.9.0\nNOTICE:  BL31: Built : 00:00:00, Apr  3 2023\nNOTICE:  BL31: Detected Allwinner A64/H64/R18 SoC (1689)',
+    mem:[['0x0001_0000','▶ 執行中：SPL（SRAM A1）'],['SRAM A2','TF-A BL31（之後一直常駐）'],['DRAM','完整版 U-Boot（剛載入）']],
+    stuck:'SPL 那行印出來就停住，或 DRAM 顯示的容量不對：DRAM 設定參數錯誤，或硬體焊接問題。',
+    src:[['ok','U-Boot 官方文件：64 位元 Allwinner 需要 TF-A BL31','https://docs.u-boot.org/en/latest/board/allwinner/sunxi.html'],['ok','TF-A 官方文件：SPL 載入 BL31 與 U-Boot，A64 的 BL31 放在 SRAM A2','https://trustedfirmware-a.readthedocs.io/en/latest/plat/allwinner.html']] },
+
+  { k:'U-Boot', t:'U-Boot：載入 kernel', run:'DRAM',
+    hot:['dram','uart','sd','eth','periph'], flows:['f-sd-dram','f-uart','f-eth'],
+    plain:'U-Boot 把 kernel 和 DTB 從 SD 卡搬進 DRAM，然後把控制權交給 kernel。',
+    seq:[['dram','U-Boot 在 DRAM 執行，先把自己搬到 DRAM 高處'],['periph','初始化 UART、SD 卡、網路'],['uart','讀取環境變數，開始倒數（按任意鍵可中斷）'],['sd','執行 bootcmd：從 SD 卡 p1 讀出 Image，放到 0x4008_0000'],['sd','讀出 DTB 放到 0x4FA0_0000，把 bootargs 寫進 DTB'],['cpu','x0 暫存器放 DTB 位址、關閉 MMU，跳進 kernel']],
+    pts:['倒數時按任意鍵可以進入 U-Boot 命令列，用 printenv 看設定、用 md 直接看記憶體內容','開發時常用 tftp 從電腦透過網路抓 kernel，不用每次重燒 SD 卡','ARM64 規定跳進 kernel 時：MMU 必須關閉、x0 放 DTB 的實體位址。這一跳本質上就是呼叫一個 function pointer'],
+    log:'U-Boot 2023.04 (Apr 03 2023 - 00:00:00 +0000) Allwinner Technology\n\nCPU:   Allwinner A64 (SUN50I)\nModel: Pine64+\nDRAM:  1 GiB\nMMC:   mmc@1c0f000: 0\nLoading Environment from FAT... OK\nIn:    serial@1c28000\nOut:   serial@1c28000\nErr:   serial@1c28000\nNet:   eth0: ethernet@1c30000\nHit any key to stop autoboot:  0\n22151680 bytes read in 950 ms (22.2 MiB/s)\n38912 bytes read in 5 ms (7.4 MiB/s)\n## Flattened Device Tree blob at 4fa00000\n   Booting using the fdt blob at 0x4fa00000\n\nStarting kernel ...',
+    mem:[['0x4008_0000','kernel Image'],['0x4FA0_0000','DTB'],['DRAM 上方','▶ 執行中：U-Boot（會把自己搬到 DRAM 高處，把下方空間讓給 kernel）']],
+    stuck:'「Starting kernel ...」之後沒有任何輸出：bootargs 裡的 console= 寫錯、DTB 跟 kernel 不相配，或 kernel 放錯位址。在 bootargs 加上 earlycon 可以看到更早的訊息。',
+    src:[['ok','Linux kernel 文件：ARM64 開機規則（x0 = DTB 位址、MMU 關閉）','https://docs.kernel.org/arch/arm64/booting.html'],['ok','U-Boot 原始碼：A64 預設 kernel 位址 0x40080000、DTB 位址 0x4FA00000','https://github.com/u-boot/u-boot/blob/master/include/configs/sunxi-common.h'],['ok','Linux kernel 文件：console= 與 earlycon 參數','https://docs.kernel.org/admin-guide/kernel-parameters.html']] },
+
+  { k:'Kernel', t:'Linux Kernel：認識硬體', run:'DRAM',
+    hot:['cpu','dram','periph','uart','sd','eth','emmc'], flows:['f-cpu-dram','f-uart','f-sd-soc'],
+    plain:'kernel 看 DTB 這份「硬體清單」，替每個硬體找到負責的 driver。',
+    seq:[['cpu','kernel 開啟 MMU，之後都用虛擬位址'],['dram','讀 DTB，知道板子上有哪些硬體；初始化記憶體管理'],['cpu','初始化中斷和計時器，叫醒另外三顆 CPU core'],['periph','每個 driver 拿 compatible 字串跟 DTB 比對'],['uart','比對成功就呼叫 probe()：UART0 變成 /dev/ttyS0'],['sd','SD 卡 driver probe 完，出現 mmcblk0 和 p1、p2 兩個分割區']],
+    pts:['例子：DTB 裡 UART0 的節點寫著 compatible = "snps,dw-apb-uart"、位址 0x01C2_8000，kernel 就把它交給支援這個字串的 8250 序列埠 driver','每行開頭的 [ 秒數 ] 是開機後經過的時間，可以用來找哪一段最花時間','driver 初始化失敗通常不會停機，要自己用 dmesg 搜尋 error、fail'],
+    log:'[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]\n[    0.000000] Linux version 6.1.0 (gcc version 12.2.0) #1 SMP PREEMPT\n[    0.000000] Machine model: Pine64+\n[    0.000000] Kernel command line: console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait\n[    0.000000] Memory: 1003456K/1048576K available\n[    0.000000] arch_timer: cp15 timer(s) running at 24.00MHz (phys).\n[    0.061232] smp: Brought up 1 node, 4 CPUs\n[    0.912341] 1c28000.serial: ttyS0 at MMIO 0x1c28000 (irq = 29, base_baud = 1500000) is a U6_16550A\n[    1.210334] sunxi-mmc 1c0f000.mmc: initialized, max. request size: 16384 KB\n[    1.302118] mmc0: new high speed SDHC card at address aaaa\n[    1.315872]  mmcblk0: p1 p2',
+    mem:[['0x4008_0000 起','▶ 執行中：kernel（開啟 MMU 後改用虛擬位址）'],['0x4FA0_0000','DTB（kernel 仍會參考）'],['其餘 DRAM','交給 kernel 管理，U-Boot 佔的空間也被收回']],
+    stuck:'Kernel panic 會印出原因和 call trace。某個裝置沒出現：用 dmesg 搜尋那個裝置的名稱，並檢查 DTB 節點是不是 status = "okay"。',
+    src:[['ok','Linux kernel 的 A64 裝置樹（UART0、MMC0、EMAC 的位址與 compatible）','https://github.com/torvalds/linux/blob/master/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi'],['warn','log 內容依真實格式撰寫，時間戳與 irq 編號為示意','']] },
+
+  { k:'rootfs 與 init', t:'掛載 rootfs、啟動 init', run:'DRAM',
+    hot:['sd','uart','cpu','periph','dram'], flows:['f-sd-soc','f-uart'],
+    plain:'kernel 掛上存放所有程式的分割區，啟動第一個程式 init，開機完成。',
+    seq:[['sd','依照 root=/dev/mmcblk0p2，把 SD 卡 p2 掛載成根目錄 /'],['cpu','執行 /sbin/init，它就是 PID 1'],['cpu','init 依序啟動 syslogd、network 等服務'],['uart','UART 顯示登入提示，開機完成']],
+    pts:['rootwait 的意思是等 SD 卡準備好再掛載，避免太早找不到裝置','嵌入式系統常用 BusyBox 搭配精簡的 rootfs，用 Buildroot 或 Yocto 建出來','從這裡開始就是 user space 的世界'],
+    log:'[    1.530211] EXT4-fs (mmcblk0p2): mounted filesystem with ordered data mode. Quota mode: none.\n[    1.540017] VFS: Mounted root (ext4 filesystem) on device 179:2.\n[    1.598430] Freeing unused kernel memory: 1536K\n[    1.600125] Run /sbin/init as init process\nStarting syslogd: OK\nStarting klogd: OK\nStarting network: OK\n\nWelcome to Buildroot\nbuildroot login:',
+    mem:[['kernel 空間','kernel 常駐，管理全部記憶體'],['user 空間','▶ init 與各種服務（每個程式都有自己的虛擬位址空間）']],
+    stuck:'「Kernel panic - not syncing: VFS: Unable to mount root fs」：root= 寫錯，或 SD 卡、ext4 的 driver 被編成 module 放在 rootfs 裡。要先掛上 rootfs 才讀得到 driver，但沒有 driver 又掛不上 rootfs，互相卡住。',
+    src:[['warn','本步驟為一般 Linux 知識，未逐條查證來源','']] }
+];
+
+const $ = id => document.getElementById(id);
+const stepsEl = $('steps'), board = $('board');
+const TERMS = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
+const TERM_RE = new RegExp('(' + TERMS.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'g');
+let cur = 0, pop = null;
+
+// 把文字裡的名詞包成可點按鈕；同一段只標第一次出現
+function fill(el, text){
+  el.textContent = '';
+  const seen = new Set();
+  text.split(TERM_RE).forEach(part => {
+    if (GLOSSARY[part] && !seen.has(part)) {
+      seen.add(part);
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'term'; b.textContent = part; b.dataset.term = part;
+      el.appendChild(b);
+      if (GLOSSARY[part].en) { const en = document.createElement('span'); en.className = 'en'; en.textContent = ' (' + GLOSSARY[part].en + ')'; el.appendChild(en); }
+    } else el.appendChild(document.createTextNode(part));
+  });
+}
+
+function showPop(term, anchor){
+  closePop();
+  const g = GLOSSARY[term]; if (!g) return;
+  pop = document.createElement('div');
+  pop.className = 'pop'; pop.setAttribute('role', 'dialog');
+  const b = document.createElement('b'); b.textContent = term + (g.en ? '  ' + g.en : ''); pop.appendChild(b);
+  pop.appendChild(document.createTextNode(g.d));
+  if (g.e) { const e = document.createElement('span'); e.className = 'eg'; e.textContent = g.e; pop.appendChild(e); }
+  document.body.appendChild(pop);
+  const r = anchor.getBoundingClientRect();
+  const w = pop.offsetWidth;
+  const left = Math.max(16, Math.min(r.left + window.scrollX, window.scrollX + document.documentElement.clientWidth - w - 16));
+  pop.style.left = left + 'px';
+  pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+}
+function closePop(){ if (pop) { pop.remove(); pop = null; } }
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('.term, .part');
+  if (t) { e.stopPropagation(); showPop(t.dataset.term, t); return; }
+  if (!e.target.closest('.pop')) closePop();
+});
+
+board.querySelectorAll('.part').forEach(p => {
+  p.setAttribute('tabindex', '0'); p.setAttribute('role', 'button');
+  p.setAttribute('aria-label', p.dataset.term + '：點擊看說明');
+  p.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPop(p.dataset.term, p); } });
+});
+
+STEPS.forEach((s, i) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.innerHTML = '<span class="n">STEP ' + i + '</span><span class="k"></span>';
+  b.querySelector('.k').textContent = s.k;
+  b.addEventListener('click', () => render(i));
+  li.appendChild(b); stepsEl.appendChild(li);
+});
+
+
+// 步驟列固定在頂端：量它的高度，讓示意圖貼在它下方
+new ResizeObserver(() => document.documentElement.style.setProperty('--nav-h', stepsEl.offsetHeight + 'px')).observe(stepsEl);
+
+function render(i){
+  closePop();
+  // 換步驟時，如果面板開頭已經捲到步驟列後面，就捲回面板開頭
+  const panel = document.querySelector('.panel');
+  const navBottom = stepsEl.getBoundingClientRect().bottom;
+  if (panel.getBoundingClientRect().top < navBottom) window.scrollTo({ top: panel.getBoundingClientRect().top + window.scrollY - navBottom - 12, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  cur = i; const s = STEPS[i];
+  stepsEl.querySelectorAll('button').forEach((b, j) => j === i ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current'));
+  board.querySelectorAll('.part').forEach(p => p.classList.toggle('hot', s.hot.includes(p.id.slice(2))));
+  board.querySelectorAll('.flow').forEach(f => f.classList.toggle('on', s.flows.includes(f.id)));
+  $('title').textContent = s.t;
+  fill($('plain'), s.plain);
+  const w = $('where'); w.textContent = '';
+  if (!s.run) { const e = document.createElement('em'); e.textContent = '還沒有程式在執行'; w.appendChild(e); }
+  ['ROM','SRAM','DRAM'].forEach(r => { const sp = document.createElement('span'); sp.textContent = r; if (r === s.run) sp.className = 'on'; w.appendChild(sp); });
+  const ol = $('seq'); ol.textContent = ''; unfocus();
+  s.seq.forEach(([pid, text]) => {
+    const li = document.createElement('li'); li.tabIndex = 0; li.dataset.part = pid;
+    const body = document.createElement('div');
+    const who = document.createElement('span'); who.className = 'who';
+    who.textContent = $('p-' + pid).dataset.term;
+    const txt = document.createElement('span'); fill(txt, text);
+    body.append(who, txt); li.appendChild(body); ol.appendChild(li);
+  });
+  const ul = $('pts'); ul.textContent = '';
+  s.pts.forEach(p => { const li = document.createElement('li'); fill(li, p); ul.appendChild(li); });
+  $('log').textContent = s.log;
+  const t = $('mem'); t.textContent = '';
+  s.mem.forEach(row => { const tr = t.insertRow(); row.forEach(c => { tr.insertCell().textContent = c; }); });
+  fill($('stuck'), '卡在這裡代表：' + s.stuck);
+  const src = $('src'); src.textContent = '';
+  s.src.forEach(([kind, label, url]) => {
+    const row = document.createElement('div');
+    const tag = document.createElement('span'); tag.className = 'tag' + (kind === 'ok' ? '' : ' warn'); tag.textContent = kind === 'ok' ? '已查證' : '未查證';
+    row.appendChild(tag);
+    if (url) { const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = label; row.appendChild(a); }
+    else row.appendChild(document.createTextNode(label));
+    src.appendChild(row);
+  });
+  $('prev').disabled = i === 0; $('next').disabled = i === STEPS.length - 1;
+}
+
+// 動作清單：滑過、聚焦或點擊時，板子上只標出那個零件
+function focusPart(li){
+  unfocus();
+  li.classList.add('on');
+  board.classList.add('focusing');
+  $('p-' + li.dataset.part).classList.add('focus');
+}
+function unfocus(){
+  board.classList.remove('focusing');
+  board.querySelectorAll('.part.focus').forEach(p => p.classList.remove('focus'));
+  document.querySelectorAll('ol.seq li.on').forEach(li => li.classList.remove('on'));
+}
+const seqEl = $('seq');
+seqEl.addEventListener('mouseover', e => { const li = e.target.closest('li'); if (li) focusPart(li); });
+seqEl.addEventListener('mouseleave', unfocus);
+seqEl.addEventListener('focusin', e => { const li = e.target.closest('li'); if (li) focusPart(li); });
+seqEl.addEventListener('focusout', e => { if (!seqEl.contains(e.relatedTarget)) unfocus(); });
+seqEl.addEventListener('click', e => { const li = e.target.closest('li'); if (li && !e.target.closest('.term')) focusPart(li); });
+
+$('prev').addEventListener('click', () => cur > 0 && render(cur - 1));
+$('next').addEventListener('click', () => cur < STEPS.length - 1 && render(cur + 1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePop();
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  if (e.key === 'ArrowRight' && cur < STEPS.length - 1) render(cur + 1);
+  if (e.key === 'ArrowLeft' && cur > 0) render(cur - 1);
+});
+render(0);
+</script>
+

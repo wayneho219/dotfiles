@@ -18,6 +18,12 @@
       "prompt": "這幾篇跟我碩論做的 agent 安全有沒有關係，幫我整理一下 https://arxiv.org/abs/2406.13352 https://arxiv.org/abs/2410.09024",
       "expected_output": "多篇論文批次處理：因提到「碩論」自動判定為深讀版，兩篇各自獨立存成一個檔案（各自都有可攻擊點+與研究關聯對照），最後給一個簡短總表（篇名+一句話重點），不要擠進同一份筆記",
       "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "幫我深讀 Zotero 裡的 SAGA",
+      "expected_output": "從 Zotero 搜到 SAGA 條目（key Z3EXHXXW），會議/DOI 用 Zotero 的 NDSS 2026 而非 arXiv；讀附件 PDF 全文；深讀版筆記 frontmatter 含 zotero://select/library/items/Z3EXHXXW；在 Zotero 條目下建 note（重點+筆記路徑）並加 read/deep 標籤且保留原有標籤",
+      "files": []
     }
   ]
 }

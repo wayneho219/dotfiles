@@ -1,3 +1,13 @@
 [user]
-	name = wayneho219
-	# email = your@email.com
+	name = Wayne Ho
+	# email = you@example.com
+[patatt]
+	signingkey = ed25519:20261001
+	selector = 20261001
+[sendemail]
+	smtpServer = smtp.gmail.com
+	smtpServerPort = 587
+	smtpEncryption = tls
+	smtpUser = you@example.com
+	from = Your Name <you@example.com>
+	confirm = always

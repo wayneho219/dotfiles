@@ -6,22 +6,26 @@
     "showModel": true,
     "showContextBar": true,
     "showTools": false,
-    "showAgents": true,
+    "showAgents": false,
     "showTodos": true,
     "showProject": true,
     "showConfigCounts": false,
     "showTokenBreakdown": true,
     "showSpeed": true,
     "showUsage": true,
-    "showDuration": true,
-    "showSessionName": true,
+    "showDuration": false,
+    "usageBarEnabled": true,
+    "showSessionName": false,
     "showSessionTokens": false,
     "customLine": ""
   },
   "gitStatus": {
     "enabled": true,
-    "showDirty": true,
+    "showDirty": false,
     "showAheadBehind": false,
     "showFileStats": false
+  },
+  "colors": {
+    "gitBranch": "magenta"
   }
 }

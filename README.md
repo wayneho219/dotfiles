@@ -25,6 +25,7 @@ Wayne 的終端設定檔備份。
 | `claude/skills/` | `~/.claude/plugins/cache/user-skills/user-skills/1.0.0/skills/` |
 | `claude/skills-personal/` | `~/.claude/skills/`（獨立個人 skill，非 user-skills plugin 的一部分；`-workspace` 結尾的 eval 暫存資料夾不追蹤；本身是獨立 git repo 的 skill（如 latex-document）也不追蹤，改用 clone；第三方安裝的 skill（anysearch-skill、pptx）與含個人研究資料的 skill（overleaf-sync、revising-chinese-academic-papers）只留在本機） |
 | `claude/plugins/claude-hud/config.json` | `~/.claude/plugins/claude-hud/config.json` |
+| `claude/plugins/claude-hud/apply-patches.sh` | 直接執行，不用複製；把版面修改套進已安裝的 claude-hud（拿掉 `git:()`、project 放 model 前、三條 bar 固定 7 格、不顯示 weekly 重置時間）。plugin 更新會蓋掉，更新後重跑 |
 | `claude/TROUBLESHOOTING.md` | 參考文件，無需複製 |
 
 ## 新電腦設定步驟
@@ -115,6 +116,8 @@ claude plugins install clangd-lsp
 
 # 安裝 claude-hud（自訂 marketplace，GitHub: jarrodwatts/claude-hud）
 # 先在 Claude Code 裡執行 /update-config 加入 claude-hud marketplace，再安裝
+# 安裝或每次更新 claude-hud 後，重新套用版面修改
+bash ~/dotfiles/claude/plugins/claude-hud/apply-patches.sh
 
 # 安裝 user-skills（本機目錄 plugin）
 # 把 claude/skills/ 複製到目標路徑後，在 Claude Code 設定中指向該目錄

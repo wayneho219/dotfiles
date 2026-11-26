@@ -1,0 +1,36 @@
+{
+  "lineLayout": "expanded",
+  "showSeparators": false,
+  "language": "en",
+  "display": {
+    "showModel": true,
+    "showContextBar": true,
+    "showTools": false,
+    "showAgents": false,
+    "showTodos": true,
+    "showProject": true,
+    "showConfigCounts": false,
+    "showTokenBreakdown": true,
+    "showSpeed": true,
+    "showUsage": true,
+    "showDuration": false,
+    "usageBarEnabled": true,
+    "showSessionName": false,
+    "showSessionTokens": false,
+    "customLine": "",
+    "sevenDayThreshold": 0
+  },
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": false,
+    "showAheadBehind": false,
+    "showFileStats": false
+  },
+  "colors": {
+    "gitBranch": "magenta"
+  },
+  "projectLineOrder": [
+    "project",
+    "model"
+  ]
+}

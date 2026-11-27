@@ -18,6 +18,16 @@
 - 同一個 session 裡問過的 skill，照使用者的答案處理，不重複問。
 - superpowers 的流程類 skill（brainstorming、writing-plans、TDD、subagent 等）只在使用者要求，或要從零開發一個有規模的新功能時使用；問答、論文編輯、小改動不用。
 
+## Herdr（有 `$HC_TERMINAL_ID` 時）
+- `hc ls`：列出終端機（含 `dgx_spark_ts/tN`）；`hc read <t> | tail -N`：讀畫面，只看錯誤用 `| grep -i -m 20 "error\|traceback"`
+- `hc send <t> "文字"`：打字並按 Enter；送之前先 `hc read` 確認閒著、沒有草稿
+- `hc wait <t>`：等 agent 講完（一般 shell 不要用，會一直等）；等特定輸出用 `--output "X"`，不要重複輪詢
+- `hc exec --on dgx_spark_ts "<cmd>"`：在 DGX 跑短指令
+- `hc run --bg --on dgx_spark_ts --cwd <dir> <cmd>`：在 DGX 跑長任務
+- DGX 文字檔：`hc file read|edit|write --on dgx_spark_ts <path>`；二進位、資料夾、大檔用 scp／rsync（主機 `dgx_spark_ts`）
+- `herdr-app do pane.split:right` / `tab.new`：開 pane、tab
+- 其他用法才跑 `hc --skill`
+
 ## Boundaries
 - 密碼、token、API key 只放環境變數或 `.env`，不寫進程式碼、alias、shell 設定檔或任何會被 commit 的檔案。
 
